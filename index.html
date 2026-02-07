@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Bounty Hunter Quiz - Is Bounty Hunting Right For You?</title>
+<style>
+  :root {
+    --primary: #6C5CE7;
+    --primary-light: #A29BFE;
+    --secondary: #00B894;
+    --bg: #0F0F1A;
+    --card: #1A1A2E;
+    --text: #E8E8F0;
+    --text-muted: #9090A8;
+    --border: #2A2A40;
+    --danger: #E17055;
+    --warning: #FDCB6E;
+    --success: #00B894;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  .question-number {
+    font-size: 0.85rem;
+    color: var(--primary-light);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .question-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: var(--text);
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+  }
+
+  .option-btn:hover {
+    border-color: var(--primary);
+    background: rgba(108, 92, 231, 0.1);
+    transform: translateX(4px);
+  }
+
+  .option-btn.selected {
+    border-color: var(--primary);
+    background: rgba(108, 92, 231, 0.15);
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), #5A4BD1);
+    color: white;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108,92,231,0.4); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+  .btn-cta {
+    background: linear-gradient(135deg, var(--secondary), #00A383);
+    color: white;
+    font-size: 1.1rem;
+    padding: 16px 36px;
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+
+  .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,184,148,0.4); }
+
+  /* Results */
+  .results-container { display: none; }
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .score-number { font-size: 2.5rem; font-weight: 700; }
+  .score-label { font-size: 0.85rem; color: var(--text-muted); }
+
+  .result-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .result-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+
+  .recommendations {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 32px;
+  }
+
+  .recommendations li {
+    padding: 14px 16px;
+    border-left: 3px solid var(--primary);
+    background: rgba(108, 92, 231, 0.05);
+    margin-bottom: 10px;
+    border-radius: 0 8px 8px 0;
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+
+  .result-actions {
+    text-align: center;
+    margin-top: 28px;
+  }
+
+  .restart-btn {
+    display: block;
+    margin: 16px auto 0;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+  }
+
+  .restart-btn:hover { color: var(--text); }
+
+  .hidden { display: none; }
+
+  .start-screen { text-align: center; }
+  .start-screen p { color: var(--text-muted); margin: 16px 0 28px; line-height: 1.6; font-size: 1.05rem; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+
+  .feature-item {
+    padding: 14px;
+    background: rgba(108, 92, 231, 0.08);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .feature-item strong { color: var(--primary-light); display: block; margin-bottom: 4px; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.5rem; }
+    .quiz-card { padding: 24px 18px; }
+    .question-text { font-size: 1.1rem; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .btn { padding: 12px 20px; font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>AI Bounty Hunter Readiness Quiz</h1>
+    <p>Find out if you're ready to earn USDC by completing AI bounties</p>
+  </header>
+
+  <!-- Start Screen -->
+  <div class="quiz-card start-screen" id="startScreen">
+    <h2 style="margin-bottom: 8px;">Are You Ready to Hunt Bounties?</h2>
+    <p>Answer 10 quick questions to discover how prepared you are for the AI Bounty Board. Get personalized recommendations based on your experience and knowledge.</p>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <strong>Skills Check</strong>
+        Know what tools and skills are needed
+      </div>
+      <div class="feature-item">
+        <strong>Payment Setup</strong>
+        USDC, Base network, and wallet readiness
+      </div>
+      <div class="feature-item">
+        <strong>Process Knowledge</strong>
+        Understand bounty lifecycle and autograde
+      </div>
+      <div class="feature-item">
+        <strong>Tips &amp; Strategy</strong>
+        Learn submission best practices
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <!-- Quiz Section -->
+  <div class="quiz-card hidden" id="quizSection">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+    </div>
+    <div class="question-number" id="questionNumber">Question 1 of 10</div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="quiz-card results-container" id="resultsSection">
+    <div class="score-circle">
+      <div class="score-number" id="scoreNumber">0</div>
+      <div class="score-label">out of 10</div>
+    </div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-subtitle" id="resultSubtitle"></div>
+    <ul class="recommendations" id="recommendations"></ul>
+    <div class="result-actions">
+      <a href="https://bounty.owockibot.xyz" target="_blank" class="btn-cta" id="ctaButton">Start Hunting Bounties</a>
+      <button class="restart-btn" onclick="restartQuiz()">Retake Quiz</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "Do you have a crypto wallet (MetaMask, Coinbase Wallet, Rainbow, etc.) set up and ready to use?",
+    options: [
+      { text: "Yes, I use one regularly for transactions", score: 1 },
+      { text: "I have one installed but haven't used it much", score: 0.5 },
+      { text: "I've heard of wallets but don't have one yet", score: 0.25 },
+      { text: "I'm not sure what a crypto wallet is", score: 0 }
+    ]
+  },
+  {
+    text: "How familiar are you with the Base network (Coinbase's L2 chain) and receiving USDC payments on it?",
+    options: [
+      { text: "Very familiar - I've sent and received tokens on Base", score: 1 },
+      { text: "Somewhat familiar - I know it's an L2 but haven't used it", score: 0.5 },
+      { text: "I've heard of Base but don't really understand L2s", score: 0.25 },
+      { text: "This is all new to me", score: 0 }
+    ]
+  },
+  {
+    text: "What's your experience level with coding or AI-assisted development?",
+    options: [
+      { text: "I'm an experienced developer or work with AI tools daily", score: 1 },
+      { text: "I can code with AI assistance (Copilot, ChatGPT, Claude, etc.)", score: 0.75 },
+      { text: "I've done some basic scripting or no-code tools", score: 0.5 },
+      { text: "I have no coding experience at all", score: 0.25 }
+    ]
+  },
+  {
+    text: "Do you know what happens after you submit a bounty on the AI Bounty Board?",
+    options: [
+      { text: "Yes - it goes through autograde review, then maintainer verification", score: 1 },
+      { text: "I think someone reviews it manually", score: 0.5 },
+      { text: "I assume you just get paid immediately", score: 0.25 },
+      { text: "I have no idea", score: 0 }
+    ]
+  },
+  {
+    text: "Which of these tools are you comfortable using? (Pick the best match)",
+    options: [
+      { text: "Git/GitHub, a code editor, CLI tools, and API testing", score: 1 },
+      { text: "GitHub and a code editor, but not CLI tools", score: 0.75 },
+      { text: "I can use a code editor but not Git/GitHub", score: 0.5 },
+      { text: "None of these tools are familiar to me", score: 0.25 }
+    ]
+  },
+  {
+    text: "How much time per week can you dedicate to bounty hunting?",
+    options: [
+      { text: "10+ hours - I'm looking for significant side income", score: 1 },
+      { text: "5-10 hours - I can do a few bounties per week", score: 0.75 },
+      { text: "2-5 hours - I'd like to try one bounty at a time", score: 0.5 },
+      { text: "Less than 2 hours - very limited availability", score: 0.25 }
+    ]
+  },
+  {
+    text: "What do you know about the autograde system used to evaluate submissions?",
+    options: [
+      { text: "It's an AI-powered evaluation that checks code quality, completeness, and requirements", score: 1 },
+      { text: "I know it's automated but don't know the specifics", score: 0.5 },
+      { text: "I thought all reviews were manual", score: 0.25 },
+      { text: "I've never heard of autograde", score: 0 }
+    ]
+  },
+  {
+    text: "Which approach best describes your bounty submission strategy?",
+    options: [
+      { text: "Read requirements carefully, build complete solution, test thoroughly, include documentation", score: 1 },
+      { text: "Build a working solution and submit it quickly", score: 0.5 },
+      { text: "Start coding and figure out requirements along the way", score: 0.25 },
+      { text: "I haven't thought about a strategy yet", score: 0 }
+    ]
+  },
+  {
+    text: "What's a realistic earning expectation for a new bounty hunter in their first month?",
+    options: [
+      { text: "$50-200 USDC while learning the system and building reputation", score: 1 },
+      { text: "$200-500 USDC if I work hard", score: 0.5 },
+      { text: "$1,000+ USDC - these bounties seem easy", score: 0 },
+      { text: "I'm not sure what to expect", score: 0.25 }
+    ]
+  },
+  {
+    text: "What's the most important thing to include in a bounty submission?",
+    options: [
+      { text: "Complete working code that meets ALL stated requirements with a clear README", score: 1 },
+      { text: "Clean code that mostly works", score: 0.5 },
+      { text: "A quick prototype to claim the bounty fast", score: 0.25 },
+      { text: "I'd just submit whatever I have and hope for the best", score: 0 }
+    ]
+  }
+];
+
+let currentQuestion = 0;
+let answers = new Array(questions.length).fill(null);
+
+function startQuiz() {
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('quizSection').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQuestion];
+  document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+  document.getElementById('questionText').textContent = q.text;
+  document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (answers[currentQuestion] === i ? ' selected' : '');
+    btn.textContent = opt.text;
+    btn.onclick = () => selectOption(i);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('prevBtn').style.visibility = currentQuestion === 0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').disabled = answers[currentQuestion] === null;
+  document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'See Results' : 'Next';
+}
+
+function selectOption(index) {
+  answers[currentQuestion] = index;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === index);
+  });
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQuestion] === null) return;
+  if (currentQuestion < questions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQuestion > 0) {
+    currentQuestion--;
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizSection').classList.add('hidden');
+  document.getElementById('resultsSection').style.display = 'block';
+
+  let totalScore = 0;
+  answers.forEach((ansIdx, qIdx) => {
+    if (ansIdx !== null) {
+      totalScore += questions[qIdx].options[ansIdx].score;
+    }
+  });
+
+  const scoreOut10 = Math.round(totalScore * 10) / 10;
+  document.getElementById('scoreNumber').textContent = scoreOut10;
+
+  let title, subtitle, recs;
+
+  if (scoreOut10 >= 8) {
+    title = "You're Ready to Hunt!";
+    subtitle = "You have strong knowledge of the bounty ecosystem, the right tools, and realistic expectations. Jump in and start earning.";
+    recs = [
+      "Start with medium-difficulty bounties ($20-30 USDC) to build your reputation quickly.",
+      "Always read the full bounty description and check the autograde criteria before coding.",
+      "Submit clean, well-documented code with a thorough README for the best autograde scores.",
+      "Consider specializing in a niche (APIs, frontends, integrations) to become a go-to hunter."
+    ];
+  } else if (scoreOut10 >= 5.5) {
+    title = "Almost There!";
+    subtitle = "You have a good foundation but there are a few areas to brush up on before diving in. A little preparation will boost your success rate.";
+    recs = [
+      "Set up your crypto wallet on the Base network and practice sending a small test transaction.",
+      "Familiarize yourself with Git/GitHub workflows - most bounties require a repo submission.",
+      "Read through 3-5 completed bounties on the board to understand what successful submissions look like.",
+      "Start with smaller bounties ($15-20 USDC) to learn the autograde process with lower stakes.",
+      "Bookmark the bounty board at bounty.owockibot.xyz and check it daily for new opportunities."
+    ];
+  } else if (scoreOut10 >= 3) {
+    title = "Getting Started";
+    subtitle = "You're new to this world but that's okay! Everyone starts somewhere. Follow these steps to get bounty-ready.";
+    recs = [
+      "Install MetaMask or Coinbase Wallet and add the Base network - there are great tutorials on YouTube.",
+      "Learn the basics of Git and GitHub - try GitHub's own interactive tutorial at skills.github.com.",
+      "Try an AI coding assistant like Claude or ChatGPT to help you build projects even without deep coding experience.",
+      "Read the bounty board FAQ and documentation to understand how claims, submissions, and payments work.",
+      "Watch other hunters' submissions to learn the expected quality level before attempting your first bounty.",
+      "Set realistic expectations: plan to spend your first week learning the system before earning."
+    ];
+  } else {
+    title = "Start From the Basics";
+    subtitle = "The bounty hunting world is exciting but you'll want to build some foundational knowledge first. Here's your learning path.";
+    recs = [
+      "Start by learning what cryptocurrency and USDC stablecoins are - Coinbase Learn is a great free resource.",
+      "Set up a crypto wallet (MetaMask is beginner-friendly) and learn the basics of receiving tokens.",
+      "Explore no-code and AI-assisted development tools - you don't need to be a traditional coder to contribute.",
+      "Spend time reading the AI Bounty Board to understand what kinds of tasks are available.",
+      "Join the community channels to ask questions and learn from experienced bounty hunters.",
+      "Consider pairing with an experienced hunter on your first bounty to learn the ropes.",
+      "Give yourself 2-4 weeks of preparation before attempting your first bounty submission."
+    ];
+  }
+
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSubtitle').textContent = subtitle;
+
+  const recList = document.getElementById('recommendations');
+  recList.innerHTML = '';
+  recs.forEach(r => {
+    const li = document.createElement('li');
+    li.textContent = r;
+    recList.appendChild(li);
+  });
+}
+
+function restartQuiz() {
+  currentQuestion = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('startScreen').classList.remove('hidden');
+}
+</script>
+
+</body>
+</html>
