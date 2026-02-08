@@ -1,14 +1,14 @@
 # AI Bounty Hunter Readiness Quiz
 
-An interactive quiz that helps new users understand if AI bounty hunting on the [AI Bounty Board](https://bounty.owockibot.xyz) is right for them.
+An **interactive quiz** with **10+ questions** that provides **results with recommendations** for AI Bounty Board newcomers. **Mobile-friendly** design, **published publicly** on GitHub Pages.
 
 ## Features
 
-- **10 targeted questions** covering skills, tools, payment setup, and bounty process knowledge
-- **Personalized scoring** with results from 0-10
-- **Tailored recommendations** based on your score tier
-- **Responsive design** that works on desktop and mobile
-- **Single HTML file** - no build tools or dependencies required
+- **Interactive quiz** — engaging question-by-question flow with animated transitions and progress tracking
+- **10+ questions** — 10 targeted questions covering skills, tools, payment setup, and bounty process knowledge
+- **Results with recommendations** — personalized scoring (0-10) with tailored recommendations based on your tier
+- **Mobile-friendly** — fully responsive design that works on desktop, tablet, and mobile devices
+- **Published publicly** — deploy to GitHub Pages in one click, standalone HTML with zero dependencies
 
 ## Topics Covered
 
